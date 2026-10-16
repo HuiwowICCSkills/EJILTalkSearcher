@@ -84,6 +84,13 @@ def rest_payload() -> str:
     )
 
 
+def rest_payload_of(count: int) -> str:
+    posts = json.loads(rest_payload()) * count
+    for index, post in enumerate(posts):
+        post['id'] = 27019 + index
+    return json.dumps(posts)
+
+
 class FakeHttp:
     """Route by substring; an Exception value means the call failed."""
 
@@ -138,6 +145,45 @@ class SearchApiTests(unittest.TestCase):
         self.assertEqual(results, [])
         self.assertIsNone(meta['next_offset'])
         self.assertIsNone(meta['total'])
+
+    def test_next_offset_stops_at_a_final_page_that_lands_on_the_total(self):
+        # total == offset + page size: the last page must not advertise an
+        # offset past the end of the result set.
+        http = FakeHttp(
+            {
+                '/wp-json/wp/v2/posts?': response(
+                    rest_payload_of(10),
+                    headers={'X-WP-Total': '20', 'X-WP-TotalPages': '2'},
+                )
+            }
+        )
+        results, meta = adapter.search_api('ai', 10, 10, http=http)
+        self.assertEqual(len(results), 10)
+        self.assertEqual(meta['total'], 20)
+        self.assertEqual(meta['total_pages'], 2)
+        self.assertEqual(meta['page'], 2)
+        self.assertIsNone(meta['next_offset'])
+
+    def test_next_offset_advances_while_results_remain(self):
+        http = FakeHttp(
+            {
+                '/wp-json/wp/v2/posts?': response(
+                    rest_payload_of(10),
+                    headers={'X-WP-Total': '26', 'X-WP-TotalPages': '3'},
+                )
+            }
+        )
+        results, meta = adapter.search_api('ai', 10, 10, http=http)
+        self.assertEqual(len(results), 10)
+        self.assertEqual(meta['total'], 26)
+        self.assertEqual(meta['next_offset'], 20)
+
+    def test_next_offset_present_when_the_total_header_is_missing(self):
+        http = FakeHttp({'/wp-json/wp/v2/posts?': response(rest_payload_of(10))})
+        results, meta = adapter.search_api('ai', 10, 0, http=http)
+        self.assertEqual(len(results), 10)
+        self.assertIsNone(meta['total'])
+        self.assertEqual(meta['next_offset'], 10)
 
     def test_schema_change_raises(self):
         http = FakeHttp({'/wp-json/wp/v2/posts?': response('{"code":"rest_no_route"}')})

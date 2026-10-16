@@ -219,18 +219,25 @@ def search_api(
     results = [_post_result(post, 'WordPress REST posts API') for post in posts]
     total = response.headers.get('x-wp-total')
     total_pages = response.headers.get('x-wp-totalpages')
+    total_count = int(total) if total and total.isdigit() else None
     consumed = offset + len(results)
+    # A full page only implies another page when the site's exact total says
+    # so.  If the total is an exact multiple of the page size, the final page
+    # must not advertise an offset past the end of the result set.
+    next_offset = None
+    if len(results) == limit:
+        next_offset = consumed if total_count is None or consumed < total_count else None
     warnings = sorted(
         {row['authors_note'] for row in results if row.get('authors_note')}
     )
     meta = {
         'status': 'ok',
         'mode': 'api',
-        'total': int(total) if total and total.isdigit() else None,
+        'total': total_count,
         'total_pages': int(total_pages) if total_pages and total_pages.isdigit() else None,
         'page': offset // limit + 1 if limit else 1,
         'page_size': limit,
-        'next_offset': consumed if len(results) == limit else None,
+        'next_offset': next_offset,
         'scope': (
             'native WordPress post search; total and total_pages are the exact '
             'X-WP-Total / X-WP-TotalPages values'
