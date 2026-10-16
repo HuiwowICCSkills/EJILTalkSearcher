@@ -1,0 +1,4 @@
+interface:
+  display_name: "EJIL: Talk! 检索"
+  short_description: "检索 EJIL: Talk! 博客条目；REST API 优先，WAF 拦截时回退无头浏览器；可取文章正文"
+  default_prompt: "使用 $EJILTalkSearcher 检索 EJIL: Talk!，报告本次检索方式（REST API 或浏览器回退）、命中总数或页数、以及是否取得文章正文。"
