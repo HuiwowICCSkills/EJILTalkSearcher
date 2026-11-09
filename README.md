@@ -2,7 +2,7 @@
 
 独立的 EJIL: Talk! 检索 skill：博客文章检索、按 URL 取全文、部署自检。EJIL: Talk! 是公开博客，本 skill 不需要机构登录、不保存任何凭据，也不写入 skill 目录以外的任何文件。
 
-仓库：<https://github.com/HuiwowICCSkills/EJILTalkSearcher>（若为私有仓库，需要组织成员权限或对私仓有读权限的令牌/部署密钥）。
+仓库：<https://github.com/HuiwowICCSkills/EJILTalkSearcher>（公开仓库）。
 
 ## 1. 运行环境
 
