@@ -89,3 +89,26 @@ git -C "$env:USERPROFILE\.codex\skills\EJILTalkSearcher" pull
 ```
 
 本 skill 不依赖同组织其它仓库；`gdufs-auth-session` / `HeinOnlineSearcher` 与其互不影响。
+
+## 实测效果（2026-11-09）
+
+以下命令与结果来自本机 `~/.codex/skills/EJILTalkSearcher` 的实网运行；检索日期 2026-11-09（Asia/Shanghai），输出为该次运行实际返回的 JSON 报告。
+
+```powershell
+$ejil = "$env:USERPROFILE\.codex\skills\EJILTalkSearcher\run.ps1"
+& $ejil search 'US sanctions ICC' --limit 5
+```
+
+- 状态：`ok`；`mode=api`；服务端报告 `total = 151`、`total_pages = 31`；本次返回 5 条。
+- `scope` 原文：`native WordPress post search; total and total_pages are the exact X-WP-Total / X-WP-TotalPages values`。
+- 代表性结果：
+
+| 题名 | 类型 / 日期 | 作者 | 链接 |
+| --- | --- | --- | --- |
+| Two Weeks in Review: 19 October—1 November 2026 | retrieved_text；11/01/2026 12:00:50 | Sebastian von Massow | https://www.ejiltalk.org/two-weeks-in-review-19-october-1-november-2026/ |
+| Announcements: US Sanctions Against the ICC Roundtable; CfP Battlefield Forensics; EU-Mercosur Partnership Agreement Workshop; CfS ASIL International Legal Theory Prize; CfP Sustainability and its Discontents; Security Concerns in International Law Workshop; CfS International Criminal Law Scholarship Prize; Governing AI in a Fragmented World | retrieved_text；11/01/2026 10:00:27 | Mary Guest | https://www.ejiltalk.org/announcements-us-sanctions-against-the-icc-roundtable-cfp-battlefield-forensics-eu-mercosur-partnership-agreement-workshop-cfs-asil-international-legal-theory-prize-cfp-sustainability-and-its-dis/ |
+| EJIL: The Podcast! Episode 47: Meeting the Moment: ICC Sanctions and the Future of International Adjudication | retrieved_text；10/26/2026 08:00:45 | Leena Grover | https://www.ejiltalk.org/ejil-the-podcast-episode-47-meeting-the-moment-icc-sanctions-and-the-future-of-international-adjudication/ |
+| Two Weeks in Review: 5—16 October 2026 | retrieved_text；10/18/2026 11:00:01 | Sebastian von Massow | https://www.ejiltalk.org/two-weeks-in-review-5-16-october-2026/ |
+| The US Sanctions Against the ICC | retrieved_text；10/15/2026 12:00:01 | Marc Weller | https://www.ejiltalk.org/the-us-sanctions-against-the-icc/ |
+
+> 说明：结果类型为 `retrieved_text`，即通过 WordPress REST `posts` 接口返回的公开正文（`content_scope` 原文：`public rendered post body via the WordPress REST posts API; protected posts may omit content`），本次各条 `text_characters` 为 5546、7213、3381、9732、15322 字符，因此可当作正文使用，而不只是摘要。但这仍是站点自身的正文文本，不等于经外部核验的引证；引用时保留 `evidence` 中的 URL 与 SHA-256，并注意受保护文章可能缺正文。`total=151` 是 WordPress 索引的精确命中数，不是本次已核验文献数。
